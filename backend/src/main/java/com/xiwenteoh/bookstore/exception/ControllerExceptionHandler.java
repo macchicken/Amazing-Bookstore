@@ -3,6 +3,7 @@ package com.xiwenteoh.bookstore.exception;
 import com.xiwenteoh.bookstore.dto.resource.ErrorResource;
 import com.xiwenteoh.bookstore.dto.response.Response;
 import com.xiwenteoh.bookstore.exception.custom.BookNotFoundException;
+import com.xiwenteoh.bookstore.exception.custom.CartItemEmptyException;
 import com.xiwenteoh.bookstore.exception.custom.CartNotFoundException;
 import com.xiwenteoh.bookstore.exception.custom.UserNotFoundException;
 import com.xiwenteoh.bookstore.security.jwt.AuthEntryPointJwt;
@@ -134,6 +135,32 @@ public class ControllerExceptionHandler {
                         errorResponse
                 ),
                 HttpStatus.NOT_FOUND
+        );
+    }
+    
+    /* [HANDLES]: cart that doesn't have any item  */
+    @ExceptionHandler(CartItemEmptyException.class)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+    @ResponseBody
+    public ResponseEntity<?> handleCartItemEmptyException(
+    		CartItemEmptyException exception,
+            WebRequest request
+    ) {
+        ErrorResource.ErrorDetail errorDetail = new ErrorResource.ErrorDetail();
+        errorDetail.setField("userId");
+        errorDetail.setMessage(exception.getMessage());
+
+        List<ErrorResource.ErrorDetail> errorDetails = Collections.singletonList(errorDetail);
+
+        ErrorResource errorResponse = new ErrorResource();
+        errorResponse.setErrors(errorDetails);
+
+        return new ResponseEntity<>(
+                new Response<>(
+                        Response.StatusType.fail,
+                        errorResponse
+                ),
+                HttpStatus.NOT_ACCEPTABLE
         );
     }
 

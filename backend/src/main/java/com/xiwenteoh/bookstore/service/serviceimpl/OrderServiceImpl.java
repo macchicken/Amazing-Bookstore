@@ -7,6 +7,7 @@ import com.xiwenteoh.bookstore.entity.Cart;
 import com.xiwenteoh.bookstore.entity.Item.CartItem;
 import com.xiwenteoh.bookstore.entity.Item.OrderItem;
 import com.xiwenteoh.bookstore.entity.Order;
+import com.xiwenteoh.bookstore.exception.custom.CartItemEmptyException;
 import com.xiwenteoh.bookstore.exception.custom.CartNotFoundException;
 import com.xiwenteoh.bookstore.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,10 @@ public class OrderServiceImpl implements OrderService {
     public Order addOrder(Long userId) {
         Cart cart = cartDao.findByUserId(userId)
                 .orElseThrow(() -> new CartNotFoundException(userId));
+
+        if (cart.getCartItems() == null || cart.getCartItems().size() == 0) {
+        	throw new CartItemEmptyException(userId);
+        }
 
         Order order = new Order();
         List<OrderItem> orderItems = new ArrayList<>();

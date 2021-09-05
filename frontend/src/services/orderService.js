@@ -17,7 +17,11 @@ function addOrder() {
         method: 'POST',
         headers: {'Authorization': authHeader().Authorization }
     };
-    return fetch(`${config.API_URL}/order/user`, requestOptions).then(handleResponse);
+    return fetch(`${config.API_URL}/order/user`, requestOptions)
+        .then(handleResponse)
+        .catch(e => {
+            return Promise.reject(e);
+        });
 }
 
 function getUserOrders() {

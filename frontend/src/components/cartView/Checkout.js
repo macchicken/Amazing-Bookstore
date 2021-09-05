@@ -11,18 +11,46 @@ import {
     Stack,
     Text
 } from "@chakra-ui/react"
-import { FaShoppingBasket, FaRegCheckCircle } from "react-icons/fa";
+import { FaShoppingBasket, FaRegCheckCircle, FaBan } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { orderService } from "../../services/orderService";
 
 const { useDisclosure } = require("@chakra-ui/hooks");
 
+let message = "Thank you for your payment!";
+let headerText = "Checkout complete";
+let bgColour = "#2F855A";
+let success = true;
+
+function MessageIcon(props) {
+    if (props.success) {
+        return <FaRegCheckCircle color={props.bgColour} size={"5rem"}/>;
+    }
+    return <FaBan color={props.bgColour} size={"5rem"}/>;
+}
+
 export default function Checkout() {
     const { isOpen, onOpen, onClose } = useDisclosure()
 
     function handleCheckout() {
-        onOpen();
-        orderService.addOrder();
+        return new Promise(resolve => {
+            orderService.addOrder()
+            .then(result => {
+                console.log(JSON.stringify(result));
+                bgColour = "#2F855A";
+                headerText = "Checkout complete";
+                message = "Thank you for your payment!";
+                success = true;
+                onOpen();
+            }, e => {
+                bgColour = "#ff0000";
+                headerText = "Checkout error";
+                message = e.errors[0].message;
+                success = false;
+                onOpen();
+            });
+            resolve();
+        });
     }
 
     return (
@@ -42,17 +70,17 @@ export default function Checkout() {
                 <ModalOverlay />
                 <ModalContent>
                     <ModalHeader
-                        bg={"#2F855A"}
+                        bg={bgColour}
                         color={"white"}
                         align={"center"}
                     >
-                        <b>Checkout complete</b>
+                        <b>{headerText}</b>
                     </ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
                         <Stack padding={"20px"} align={"center"}>
-                            <FaRegCheckCircle color={"#2F855A"} size={"5rem"}/>
-                            <Text fontSize="xl">{"\n"}Thank you for your payment!</Text>
+                            <MessageIcon success={success} bgColour={bgColour}/>
+                            <Text fontSize="xl">{"\n"}{message}</Text>
                         </Stack>
                     </ModalBody>
 
@@ -62,7 +90,7 @@ export default function Checkout() {
                             <Button
                                 width={"100%"}
                                 color={"white"}
-                                bg={"#2F855A"}
+                                bg={bgColour}
                                 _hover={{
                                     bg: "#48BB78"
                                 }}
